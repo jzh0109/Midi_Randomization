@@ -23,9 +23,9 @@ public class midiRandomizer {
         System.out. print("Input the tune: ");
         String name = reader.readLine();
         double input = Double.parseDouble(name);
-        Sequence sequence = MidiSystem.getSequence(new File("Exercise1.mid"));
+        Sequence sequence = MidiSystem.getSequence(new File("Exercise1.mid"));                     //Picks which MIDI file to read into the program
         Sequence sequence1 = new Sequence(Sequence.SMPTE_30, 32);
-        File outputFile = new File(System.getProperty("user.home")
+        File outputFile = new File(System.getProperty("user.home")                                 //Location of outputted MIDI file
                 + "//Desktop//file.mid");
         Track trackLoad = sequence1.createTrack();
 
@@ -39,6 +39,7 @@ public class midiRandomizer {
                 event.setTick(event.getTick());
                 System.out.print("@" + event.getTick() + " ");
                 MidiMessage message = event.getMessage();
+                //Outputs the values of the Inputted MIDI file
                 if (message instanceof ShortMessage) {
                     ShortMessage sm = (ShortMessage) message;
                     System.out.print("Channel: " + sm.getChannel() + " ");
@@ -70,6 +71,7 @@ public class midiRandomizer {
                     e.printStackTrace();
                     System.exit(1);
                 }*/
+                //Changes the values of the inputted MIDI file and inserts the values into a new MIDI file to be outputted
                 if (message instanceof ShortMessage) {
                     ShortMessage sm = (ShortMessage) message;
                     int key = 0;
@@ -82,17 +84,18 @@ public class midiRandomizer {
                     int maxNote = 128;
                     double coefficientVel = 0.90;
                     int offset = 10;
-                    int changeVel = (int)(key * coefficientVel + offset);
-                    int inverseChangevel = (int)((127 - key) * coefficientVel + offset);
+                    int changeVel = (int)(key * coefficientVel + offset);                           //The larger the key, the larger the velocity of the outputted MIDI file
+                    int inverseChangevel = (int)((127 - key) * coefficientVel + offset);            //The larger the key, the smaller the velocity of the outputted MIDI file
                     if (key == 0) {
                         velocity = 40;
                     }
-                    if (key == 60) {
+                    if (key == 60) {                                                                //Sets a certain velocity for these specific keys
                         velocity = 76;
                     }
                     if (key == maxNote) {
                         velocity = 116;
                     }
+                    //Randomizes the tick of the inputted MIDI file
                     int tick;
                     if (event.getTick() > 40) {
                         tick = (int)(event.getTick() + ((-40) + ((int)(Math.random() * 81))));
@@ -104,17 +107,18 @@ public class midiRandomizer {
                     //trackLoad.add(event);
                     Random random = new Random();
                     boolean yes = random.nextBoolean();
-                    if (yes && velocity > 0) {
-                        trackLoad.add(createNoteEvent(ShortMessage.NOTE_ON, sm.getData1(), (changeVel),
+                    if (yes && velocity > 0) {                                                           //Randomly chooses between changeVel or inverseChangevel for changing the velocity
+                        trackLoad.add(createNoteEvent(ShortMessage.NOTE_ON, sm.getData1(), (changeVel),  //Adds the note onto the MIDI file to be outputted
                                 tick));
                     } else if (!yes && velocity > 0){
                         trackLoad.add(createNoteEvent(ShortMessage.NOTE_ON, sm.getData1(), (inverseChangevel),
                                 tick));
                     }
-                    trackLoad.add(createNoteEvent(ShortMessage.NOTE_OFF, sm.getData1(), velocity,
+                    trackLoad.add(createNoteEvent(ShortMessage.NOTE_OFF, sm.getData1(), velocity,        //Adds moments of rest to the song in the outputted MIDI file
                             event.getTick() + (((int) (Math.random() * 201 * input)))));
                     System.out.print("@" + tick + " ");
                     System.out.print("Channel: " + sm.getChannel() + " ");
+                    //Outputs the values of the new MIDI file created
                     if (sm.getCommand() == NOTE_ON && velocity > 0) {
                         //int key = sm.getData1();
                         int octave = (key / 12) - 1;
@@ -141,7 +145,7 @@ public class midiRandomizer {
                     trackLoad.add(event);
                 }
                 try {
-                    MidiSystem.write(sequence1, 0, outputFile);
+                    MidiSystem.write(sequence1, 0, outputFile);                 //Writes the new MIDI file to be outputted
                 } catch (IOException e) {
                     e.printStackTrace();
                     System.exit(1);
